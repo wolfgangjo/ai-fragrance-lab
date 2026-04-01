@@ -30,10 +30,3 @@
     "vite": "^6.0.0"
   }
 }
-```
-
-**Save the file**, then in your terminal run:
-```
-git add .
-git commit -m "fix package.json"
-git push
