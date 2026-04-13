@@ -301,10 +301,9 @@ const CSS = `
 body{
   background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;
   line-height:1.5;overflow:hidden;
-  transition:background .3s,color .3s,opacity .4s ease;
+  transition:background .3s,color .3s;
+  opacity:1;
 }
-body.afl-ready{opacity:1}
-body:not(.afl-ready){opacity:0}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bord2);border-radius:3px}
@@ -2470,15 +2469,8 @@ export default function App() {
      1. getSession() — restores from localStorage instantly
      2. onAuthChange — handles login / logout / token refresh
   ───────────────────────────────────────────── */
-  /* Mark body visible once fonts are ready — prevents FOUT jank */
-  useEffect(() => {
-    const markReady = () => document.body.classList.add("afl-ready");
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(markReady);
-    } else {
-      setTimeout(markReady, 300);
-    }
-  }, []);
+  /* Fonts — no-op now, body is always visible */
+  useEffect(() => {}, []);
 
   const normalise = (supabaseUser) => supabaseUser
     ? { id: supabaseUser.id, name: getUserDisplayName(supabaseUser), email: supabaseUser.email }
