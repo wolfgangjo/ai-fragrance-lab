@@ -2502,16 +2502,18 @@ export default function App() {
      back to localStorage if network is blocked.
      Shows a live sync-status badge in the sidebar.
   ───────────────────────────────────────────── */
-  const [syncStatus, setSyncStatus] = useState("idle");
-  // "idle" | "saving" | "saved" | "local"
+  const [syncStatus,   setSyncStatus]   = useState("idle");
+  const [dataLoading,  setDataLoading]  = useState(true);  // true until first load completes
+  // syncStatus: "idle" | "saving" | "saved" | "local"
   const saveTimerRef = useRef(null);
   const isFirstLoad  = useRef(true);
 
   /* ── Load on login / user switch ── */
   useEffect(() => {
-    if (!user) { setLibrary([]); setSavedMixes([]); return; }
+    if (!user) { setLibrary([]); setSavedMixes([]); setDataLoading(false); return; }
     isFirstLoad.current = true;
     setSyncStatus("idle");
+    setDataLoading(true);
     (async () => {
       try {
         const { library: lib, mixes, source } = await dbLoad(user.id);
@@ -2522,6 +2524,8 @@ export default function App() {
         setLibrary([]);
         setSavedMixes([]);
         setSyncStatus("local");
+      } finally {
+        setDataLoading(false);
       }
     })();
   }, [user?.id]);
@@ -2550,6 +2554,7 @@ export default function App() {
   const handleLogout = async () => {
     await signOut();
     setLibrary([]); setSavedMixes([]);
+    setDataLoading(true);
     setPage("dashboard");
     /* setUser(null) is handled by onAuthChange above */
   };
@@ -2648,11 +2653,11 @@ export default function App() {
             <DashboardPage
               user={user} library={library} savedMixes={savedMixes}
               setPage={setPage} onPreloadMixer={ids => setMixerPreload(ids)}
-              dataLoading={syncStatus==="idle" && library.length===0}
+              dataLoading={dataLoading}
             />
           )}
           {page==="library" && <LibraryPage library={library} setLibrary={setLibrary}
-            dataLoading={syncStatus==="idle" && library.length===0}/>}
+            dataLoading={dataLoading}/>}
           {page==="mixer"   && (
             <MixerPage
               library={library} savedMixes={savedMixes} setSavedMixes={setSavedMixes}
